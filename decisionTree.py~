@@ -66,6 +66,4 @@ def createTree(dataSet,labels):
 	    retTree[bestLabel][v] = createTree(subSet,subLabels)
     return retTree
 
-
-
 	
