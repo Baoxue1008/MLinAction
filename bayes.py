@@ -25,31 +25,35 @@ def createVocabList(dataSet):
 def setOfWords2Vec(vocabSet,inputSet):
 	res = [1 if word in inputSet else 0 for word in vocabSet]
 	return res
-	'''
-	res = [0]*len(vocabSet)
-	for i in range(len(vocabSet)):
-		res[i] = 1 if vocabSet[i] in inputSet else 0 
-	return res
-	'''
+
 
 def trainNB0(trainMatrix,trainCategory):
-	c0 = sum(trainCategory)*1.0/len(trainCategory)
-	docNum = len(trainMatrix)
-	wordNumOf0 = zeros(len(trainMatrix[0]))
-	wordNumOf1 = zeros(len(trainMatrix[0]))
-	tot0 = 0.0
-	tot1 = 0.0
-	for i in range(docNum):
-		if trainCategory[i] == 0:
-			wordNumOf0 += trainMatrix[i]
-			tot0 += sum(trainMatrix[i])
+	posi_prob = sum(trainCategory)/float(len(trainMatrix))
+	words_num = len(trainMatrix[0])
+	p0 = zeros(len(words_num)); p1 = zeros(len(words_num))
+	samples_num = len(trainCategory)
 
-		else :
-			wordNumOf1 += trainMatrix[i]
-			tot1 += sum(trainMatrix[i])
-	p0 = wordNumOf0/tot0
-	p1 = wordNumOf1/tot1
-	
-	return p0,p1,c0
+	sample0 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 0]
+	sample1 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 1]
+
+    tot0 = sum(sample0)
+    tot1 = sum(sample1)
+
+
+
+    sample0.append(ones(words_num))
+    sample1.append(ones(words_num))
+
+
+	prob0 = log(sum(sample0,0) * 1.0 / tot0)
+	prob1 = log(sum(sample1,0) * 1.0 / tot1)
+    print prob0
+
+
+if __name__ == 'main':
+    a,b = loadDataSet()
+    vocabSet = createVocabList(a)
+    trainNB0(setOfWords2Vec(a[0]),b[0])
+
 
 
