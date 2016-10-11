@@ -28,32 +28,61 @@ def setOfWords2Vec(vocabSet,inputSet):
 
 
 def trainNB0(trainMatrix,trainCategory):
-	posi_prob = sum(trainCategory)/float(len(trainMatrix))
-	words_num = len(trainMatrix[0])
-	p0 = zeros(len(words_num)); p1 = zeros(len(words_num))
-	samples_num = len(trainCategory)
+    posi_prob = sum(trainCategory)/float(len(trainMatrix))
+    words_num = len(trainMatrix[0])
+    samples_num = len(trainCategory)
 
-	sample0 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 0]
-	sample1 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 1]
+    sample0 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 0]
+    sample1 = [ trainMatrix[i] for i in range(samples_num) if trainCategory[i] == 1]
 
     tot0 = sum(sample0)
     tot1 = sum(sample1)
 
 
 
+    #prob0 = sum(sample0,0) * 1.0 / tot0
+    #prob1 = sum(sample1,0) * 1.0 / tot1
+
     sample0.append(ones(words_num))
     sample1.append(ones(words_num))
+    tot0 += 2
+    tot1 += 2
+
+    prob0 = log(sum(sample0,0) * 1.0 / tot0)
+    prob1 = log(sum(sample1,0) * 1.0 / tot1)
+
+    return prob0,prob1,posi_prob
+
+def classifyNB(vec2classify,prob0,prob1,posi_prob):
+    p0 = sum(vec2classify * prob0) + log(posi_prob)
+    p1 = sum(vec2classify * prob1) + log(1-posi_prob)
+    return 0 if p0 > p1 else 1
+
+def testingNB():
+    listOPosts,listClasses = loadDataSet()
+    myVocabList = createVocabList(listOPosts)
+    trainMat=[]
+    for postinDoc in listOPosts:
+        trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+    p0V,p1V,pAb = trainNB0(array(trainMat),array(listClasses))
+    testEntry = ['love', 'my', 'dalmation']
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
+    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)
+    testEntry = ['stupid', 'garbage']
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
+    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)
 
 
-	prob0 = log(sum(sample0,0) * 1.0 / tot0)
-	prob1 = log(sum(sample1,0) * 1.0 / tot1)
-    print prob0
 
 
-if __name__ == 'main':
-    a,b = loadDataSet()
-    vocabSet = createVocabList(a)
-    trainNB0(setOfWords2Vec(a[0]),b[0])
-
+if __name__ == '__main__':
+    # a,b = loadDataSet()
+    # vocabSet = createVocabList(a)
+    # trainMat = []
+    # for i in a:
+    #     trainMat.append(setOfWords2Vec(vocabSet,i))
+    # a,b,c = trainNB0(trainMat,b)
+    # print a,b,c
+    testingNB()
 
 
